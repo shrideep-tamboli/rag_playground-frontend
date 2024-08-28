@@ -22,7 +22,7 @@ export default function ApiFetch() {
         </ul>
       </aside>
       <main className="flex-1 p-4 bg-white text-black font-['Roboto Mono']">
-        <h1 className="text-2xl font-bold mb-4">Data from Backend:</h1>
+        <h1 className="text-2xl font-bold mb-4">Data from Backend displaying in frontend:</h1>
         {data ? <p>{data.message}</p> : <p>Loading...</p>}
       </main>
     </div>

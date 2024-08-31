@@ -11,6 +11,7 @@ export default function ApiFetch() {
   const [inputText, setInputText] = useState('');
   const [showTwoDropdowns, setShowTwoDropdowns] = useState(false);
   const [showThreeDropdowns, setShowThreeDropdowns] = useState(false);
+  const [queryResponses, setQueryResponses] = useState<(string | null)[]>([null, null, null]);
 
   useEffect(() => {
     fetch('http://127.0.0.1:8000/') // Adjust the port based on your backend
@@ -58,9 +59,16 @@ export default function ApiFetch() {
         });
         const result = await response.json();
         console.log('Server response:', result);
-        // Handle the response as needed (e.g., update state, display results)
+        
+        const newResponses = [
+          selectedOption ? `Received query: ${result.query}\nQuery length: ${result.query_length}` : null,
+          selectedOption2 ? `Received query: ${result.query}\nQuery length: ${result.query_length}` : null,
+          selectedOption3 ? `Received query: ${result.query}\nQuery length: ${result.query_length}` : null,
+        ];
+        setQueryResponses(newResponses);
       } catch (error) {
         console.error('Error sending data to server:', error);
+        setQueryResponses(['Error processing query', 'Error processing query', 'Error processing query']);
       }
       setInputText(''); // Clear the input after submission
     }
@@ -117,17 +125,24 @@ export default function ApiFetch() {
         <div className="flex flex-col items-center pt-10">
           {!showTwoDropdowns ? (
             <>
-              <select 
-                value={selectedOption || ''}
-                onChange={handleSelectChange}
-                className="p-2 border border-gray-300 rounded-md w-2/5 mb-4"
-              >
-                <option value="" disabled>Choose a RAG method</option>
-                <option value="Traditional RAG">Traditional RAG</option>
-                <option value="Multi-modal RAG">Multi-modal RAG</option>
-                <option value="Agentic RAG">Agentic RAG</option>
-                <option value="Graph RAG">Graph RAG</option>
-              </select>
+              <div className="w-2/5 mb-4">
+                <select 
+                  value={selectedOption || ''}
+                  onChange={handleSelectChange}
+                  className="p-2 border border-gray-300 rounded-md w-full"
+                >
+                  <option value="" disabled>Choose a RAG method</option>
+                  <option value="Traditional RAG">Traditional RAG</option>
+                  <option value="Multi-modal RAG">Multi-modal RAG</option>
+                  <option value="Agentic RAG">Agentic RAG</option>
+                  <option value="Graph RAG">Graph RAG</option>
+                </select>
+                {queryResponses[0] && (
+                  <div className="mt-2 p-2 bg-gray-100 rounded-md w-full">
+                    <pre className="whitespace-pre-wrap text-sm">{queryResponses[0]}</pre>
+                  </div>
+                )}
+              </div>
               {selectedOption && (
                 <button
                   onClick={() => {
@@ -156,6 +171,11 @@ export default function ApiFetch() {
                       <option value="Agentic RAG">Agentic RAG</option>
                       <option value="Graph RAG">Graph RAG</option>
                     </select>
+                    {queryResponses[0] && (
+                      <div className="mt-2 p-2 bg-gray-100 rounded-md w-full">
+                        <pre className="whitespace-pre-wrap text-sm">{queryResponses[0]}</pre>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -172,6 +192,11 @@ export default function ApiFetch() {
                       <option value="Agentic RAG">Agentic RAG</option>
                       <option value="Graph RAG">Graph RAG</option>
                     </select>
+                    {queryResponses[1] && (
+                      <div className="mt-2 p-2 bg-gray-100 rounded-md w-full">
+                        <pre className="whitespace-pre-wrap text-sm">{queryResponses[1]}</pre>
+                      </div>
+                    )}
                     {selectedOption2 && !showThreeDropdowns && (
                       <div className="absolute left-0 right-0 mt-2">
                         <button
@@ -199,11 +224,15 @@ export default function ApiFetch() {
                         <option value="Agentic RAG">Agentic RAG</option>
                         <option value="Graph RAG">Graph RAG</option>
                       </select>
+                      {queryResponses[2] && (
+                        <div className="mt-2 p-2 bg-gray-100 rounded-md w-full">
+                          <pre className="whitespace-pre-wrap text-sm">{queryResponses[2]}</pre>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
               </div>
-              
             </div>
           )}
         </div>

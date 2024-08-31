@@ -44,4 +44,8 @@ async def process_query(request: ProcessRequest):
     for data in received_data:
         print(data)
     
-    return {"message": "Data received successfully"}
+    return {
+        "message": "Data received successfully",
+        "query": request.query,
+        "query_length": len(request.query)
+    }

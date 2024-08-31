@@ -93,11 +93,9 @@ export default function ApiFetch() {
         const result = await response.json();
         console.log('Server response:', result);
         
-        const newResponses = [
-          selectedOption ? `Received query: ${result.query}\nQuery length: ${result.query_length}` : null,
-          selectedOption2 ? `Received query: ${result.query}\nQuery length: ${result.query_length}` : null,
-          selectedOption3 ? `Received query: ${result.query}\nQuery length: ${result.query_length}` : null,
-        ];
+        const newResponses = result.rag_methods.map((method: { index: number, method: string }) => 
+          `RAG Method: ${method.method}\nReceived query: ${result.query}\nQuery length: ${result.query_length}`
+        );
         setQueryResponses(newResponses);
       } catch (error) {
         console.error('Error sending data to server:', error);

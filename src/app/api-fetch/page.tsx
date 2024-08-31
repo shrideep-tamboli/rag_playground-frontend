@@ -2,6 +2,35 @@
 import { useEffect, useState } from 'react';
 import '../globals.css';
 
+interface RAGDropdownProps {
+  value: string | null;
+  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  response: string | null;
+}
+
+function RAGDropdown({ value, onChange, response }: RAGDropdownProps) {
+  return (
+    <div className="w-full">
+      <select 
+        value={value || ''}
+        onChange={onChange}
+        className="p-2 border border-gray-300 rounded-md w-full"
+      >
+        <option value="" disabled>Choose a RAG method</option>
+        <option value="Traditional RAG">Traditional RAG</option>
+        <option value="Multi-modal RAG">Multi-modal RAG</option>
+        <option value="Agentic RAG">Agentic RAG</option>
+        <option value="Graph RAG">Graph RAG</option>
+      </select>
+      {response && (
+        <div className="mt-2 p-2 bg-gray-100 rounded-md w-full">
+          <pre className="whitespace-pre-wrap text-sm">{response}</pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ApiFetch() {
   const [data, setData] = useState(null);
   const [fileInfo, setFileInfo] = useState(null);
@@ -126,22 +155,11 @@ export default function ApiFetch() {
           {!showTwoDropdowns ? (
             <>
               <div className="w-2/5 mb-4">
-                <select 
-                  value={selectedOption || ''}
+                <RAGDropdown
+                  value={selectedOption}
                   onChange={handleSelectChange}
-                  className="p-2 border border-gray-300 rounded-md w-full"
-                >
-                  <option value="" disabled>Choose a RAG method</option>
-                  <option value="Traditional RAG">Traditional RAG</option>
-                  <option value="Multi-modal RAG">Multi-modal RAG</option>
-                  <option value="Agentic RAG">Agentic RAG</option>
-                  <option value="Graph RAG">Graph RAG</option>
-                </select>
-                {queryResponses[0] && (
-                  <div className="mt-2 p-2 bg-gray-100 rounded-md w-full">
-                    <pre className="whitespace-pre-wrap text-sm">{queryResponses[0]}</pre>
-                  </div>
-                )}
+                  response={queryResponses[0]}
+                />
               </div>
               {selectedOption && (
                 <button
@@ -160,43 +178,21 @@ export default function ApiFetch() {
               <div className="flex justify-between w-full mb-4">
                 <div className="w-1/3 flex justify-center">
                   <div className="w-3/4">
-                    <select 
-                      value={selectedOption || ''}
+                    <RAGDropdown
+                      value={selectedOption}
                       onChange={handleSelectChange}
-                      className="p-2 border border-gray-300 rounded-md w-full"
-                    >
-                      <option value="" disabled>Choose a RAG method</option>
-                      <option value="Traditional RAG">Traditional RAG</option>
-                      <option value="Multi-modal RAG">Multi-modal RAG</option>
-                      <option value="Agentic RAG">Agentic RAG</option>
-                      <option value="Graph RAG">Graph RAG</option>
-                    </select>
-                    {queryResponses[0] && (
-                      <div className="mt-2 p-2 bg-gray-100 rounded-md w-full">
-                        <pre className="whitespace-pre-wrap text-sm">{queryResponses[0]}</pre>
-                      </div>
-                    )}
+                      response={queryResponses[0]}
+                    />
                   </div>
                 </div>
 
                 <div className="w-1/3 flex justify-center">
                   <div className="w-3/4 relative">
-                    <select 
-                      value={selectedOption2 || ''}
+                    <RAGDropdown
+                      value={selectedOption2}
                       onChange={handleSelectChange2}
-                      className="p-2 border border-gray-300 rounded-md w-full"
-                    >
-                      <option value="" disabled>Choose a RAG method</option>
-                      <option value="Traditional RAG">Traditional RAG</option>
-                      <option value="Multi-modal RAG">Multi-modal RAG</option>
-                      <option value="Agentic RAG">Agentic RAG</option>
-                      <option value="Graph RAG">Graph RAG</option>
-                    </select>
-                    {queryResponses[1] && (
-                      <div className="mt-2 p-2 bg-gray-100 rounded-md w-full">
-                        <pre className="whitespace-pre-wrap text-sm">{queryResponses[1]}</pre>
-                      </div>
-                    )}
+                      response={queryResponses[1]}
+                    />
                     {selectedOption2 && !showThreeDropdowns && (
                       <div className="absolute left-0 right-0 mt-2">
                         <button
@@ -213,22 +209,11 @@ export default function ApiFetch() {
                 {showThreeDropdowns && (
                   <div className="w-1/3 flex justify-center">
                     <div className="w-3/4">
-                      <select 
-                        value={selectedOption3 || ''}
+                      <RAGDropdown
+                        value={selectedOption3}
                         onChange={handleSelectChange3}
-                        className="p-2 border border-gray-300 rounded-md w-full"
-                      >
-                        <option value="" disabled>Choose a RAG method</option>
-                        <option value="Traditional RAG">Traditional RAG</option>
-                        <option value="Multi-modal RAG">Multi-modal RAG</option>
-                        <option value="Agentic RAG">Agentic RAG</option>
-                        <option value="Graph RAG">Graph RAG</option>
-                      </select>
-                      {queryResponses[2] && (
-                        <div className="mt-2 p-2 bg-gray-100 rounded-md w-full">
-                          <pre className="whitespace-pre-wrap text-sm">{queryResponses[2]}</pre>
-                        </div>
-                      )}
+                        response={queryResponses[2]}
+                      />
                     </div>
                   </div>
                 )}

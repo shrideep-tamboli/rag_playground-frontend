@@ -32,12 +32,16 @@ async def upload_file(file: UploadFile = File(...)):
 @app.post('/process')
 async def process_query(request: ProcessRequest):
     received_data = []
+    rag_methods = []
     if request.ragMethod1:
         received_data.append(f"Received RAG method1: {request.ragMethod1}")
+        rag_methods.append({"index": 1, "method": request.ragMethod1})
     if request.ragMethod2:
         received_data.append(f"Received RAG method2: {request.ragMethod2}")
+        rag_methods.append({"index": 2, "method": request.ragMethod2})
     if request.ragMethod3:
         received_data.append(f"Received RAG method3: {request.ragMethod3}")
+        rag_methods.append({"index": 3, "method": request.ragMethod3})
     if request.query:
         received_data.append(f"Received query: {request.query}")
     
@@ -47,5 +51,6 @@ async def process_query(request: ProcessRequest):
     return {
         "message": "Data received successfully",
         "query": request.query,
-        "query_length": len(request.query)
+        "query_length": len(request.query),
+        "rag_methods": rag_methods
     }

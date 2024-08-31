@@ -6,9 +6,10 @@ interface RAGDropdownProps {
   value: string | null;
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   response: string | null;
+  filename: string | null;
 }
 
-function RAGDropdown({ value, onChange, response }: RAGDropdownProps) {
+function RAGDropdown({ value, onChange, response, filename }: RAGDropdownProps) {
   return (
     <div className="w-full">
       <select 
@@ -22,9 +23,12 @@ function RAGDropdown({ value, onChange, response }: RAGDropdownProps) {
         <option value="Agentic RAG">Agentic RAG</option>
         <option value="Graph RAG">Graph RAG</option>
       </select>
-      {response && (
+      {(response || filename) && (
         <div className="mt-2 p-2 bg-gray-100 rounded-md w-full">
-          <pre className="whitespace-pre-wrap text-sm">{response}</pre>
+          <pre className="whitespace-pre-wrap text-sm">
+            {filename && `Uploaded file: ${filename}\n`}
+            {response}
+          </pre>
         </div>
       )}
     </div>
@@ -33,7 +37,7 @@ function RAGDropdown({ value, onChange, response }: RAGDropdownProps) {
 
 export default function ApiFetch() {
   const [data, setData] = useState(null);
-  const [fileInfo, setFileInfo] = useState(null);
+  const [fileInfo, setFileInfo] = useState<{ filename: string } | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [selectedOption2, setSelectedOption2] = useState<string | null>(null);
   const [selectedOption3, setSelectedOption3] = useState<string | null>(null);
@@ -116,7 +120,7 @@ export default function ApiFetch() {
         });
         console.log('Received response from backend');
         const result = await response.json(); //parse response from backend as JSON
-        setFileInfo(result); //update fileInfo state with result
+        setFileInfo({ filename: result.filename }); //update fileInfo state with result
         console.log('Uploaded File Info:');
         console.log('Parsed response:', result);
         console.log(`Filename: ${result.filename}`);
@@ -159,6 +163,7 @@ export default function ApiFetch() {
                   value={selectedOption}
                   onChange={handleSelectChange}
                   response={queryResponses[0]}
+                  filename={fileInfo?.filename || null}
                 />
               </div>
               {selectedOption && (
@@ -182,6 +187,7 @@ export default function ApiFetch() {
                       value={selectedOption}
                       onChange={handleSelectChange}
                       response={queryResponses[0]}
+                      filename={fileInfo?.filename || null}
                     />
                   </div>
                 </div>
@@ -192,6 +198,7 @@ export default function ApiFetch() {
                       value={selectedOption2}
                       onChange={handleSelectChange2}
                       response={queryResponses[1]}
+                      filename={fileInfo?.filename || null}
                     />
                     {selectedOption2 && !showThreeDropdowns && (
                       <div className="absolute left-0 right-0 mt-2">
@@ -213,6 +220,7 @@ export default function ApiFetch() {
                         value={selectedOption3}
                         onChange={handleSelectChange3}
                         response={queryResponses[2]}
+                        filename={fileInfo?.filename || null}
                       />
                     </div>
                   </div>

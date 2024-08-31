@@ -24,8 +24,8 @@ function RAGDropdown({ value, onChange, response, filename }: RAGDropdownProps) 
         <option value="Graph RAG">Graph RAG</option>
       </select>
       {(response || filename) && (
-        <div className="mt-2 p-2 bg-gray-100 rounded-md w-full">
-          <pre className="whitespace-pre-wrap text-sm">
+        <div className="mt-2 p-2 bg-gray-100 rounded-md w-full overflow-x-auto" style={{ maxHeight: 'calc(90vh - 120px)', overflowY: 'auto' }}>
+          <pre className="whitespace-pre-wrap break-words text-sm">
             {filename && `Uploaded file: ${filename}\n`}
             {response}
           </pre>

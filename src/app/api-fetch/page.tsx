@@ -24,7 +24,7 @@ function RAGDropdown({ value, onChange, response, filename }: RAGDropdownProps) 
         <option value="Graph RAG">Graph RAG</option>
       </select>
       {(response || filename) && (
-        <div className="mt-2 p-2 bg-gray-100 rounded-md w-full overflow-x-auto" style={{ maxHeight: 'calc(90vh - 120px)', overflowY: 'auto' }}>
+        <div className="mt-2 p-2 bg-gray-100 rounded-md w-full overflow-x-auto" style={{ maxHeight: 'calc(90vh - 100px)', overflowY: 'auto' }}>
           <pre className="whitespace-pre-wrap break-words text-sm">
             {filename && `Uploaded file: ${filename}\n`}
             {response}
@@ -131,6 +131,14 @@ export default function ApiFetch() {
     }
   };
 
+  const handleAddRAGMethod = () => {
+    if (!showTwoDropdowns) {
+      setShowTwoDropdowns(true);
+    } else if (!showThreeDropdowns) {
+      setShowThreeDropdowns(true);
+    }
+  };
+
   return (
     <div className="flex">
       <aside className="w-64 h-screen bg-black p-4 pt-12 text-white">
@@ -164,12 +172,9 @@ export default function ApiFetch() {
                   filename={fileInfo?.filename || null}
                 />
               </div>
-              {selectedOption && (
+              {selectedOption && !queryResponses[0] && (
                 <button
-                  onClick={() => {
-                    setSelectedOption(null);
-                    setShowTwoDropdowns(true);
-                  }}
+                  onClick={handleAddRAGMethod}
                   className="mb-4 p-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 w-2/5"
                 >
                   Choose another RAG method
@@ -198,10 +203,10 @@ export default function ApiFetch() {
                       response={queryResponses[1]}
                       filename={fileInfo?.filename || null}
                     />
-                    {selectedOption2 && !showThreeDropdowns && (
+                    {selectedOption2 && !showThreeDropdowns && !queryResponses[1] && (
                       <div className="absolute left-0 right-0 mt-2">
                         <button
-                          onClick={() => setShowThreeDropdowns(true)}
+                          onClick={handleAddRAGMethod}
                           className="p-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 w-full"
                         >
                           Choose another RAG method
@@ -228,7 +233,7 @@ export default function ApiFetch() {
           )}
         </div>
         {(selectedOption || selectedOption2 || selectedOption3 || showTwoDropdowns) && (
-          <div className="absolute bottom-0 left-0 right-0 pb-10 flex justify-center">
+          <div className="absolute bottom-0 left-0 right-0 pb-10 flex justify-center items-center">
             <input
               type="text"
               placeholder="Enter your query here"
@@ -237,6 +242,14 @@ export default function ApiFetch() {
               onChange={handleInputChange}
               onKeyPress={handleInputSubmit}
             />
+            {(queryResponses[0] || queryResponses[1] || queryResponses[2]) && !showThreeDropdowns && (
+              <button
+                onClick={handleAddRAGMethod}
+                className="ml-2 w-10 h-10 bg-gray-700 text-white rounded-full hover:bg-gray-800 flex items-center justify-center"
+              >
+                <span className="text-2xl">+</span>
+              </button>
+            )}
           </div>
         )}
       </main>

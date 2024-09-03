@@ -11,11 +11,11 @@ interface RAGDropdownProps {
 
 function RAGDropdown({ value, onChange, response, filename }: RAGDropdownProps) {
   return (
-    <div className="w-full">
+    <div className="w-full p-4 border-2 border-gray-300 rounded-lg">
       <select 
         value={value || ''}
         onChange={onChange}
-        className="p-2 border border-gray-300 rounded-md w-full"
+        className="p-2 border border-gray-300 rounded-md w-full mb-2"
       >
         <option value="" disabled>Choose a RAG method</option>
         <option value="Traditional RAG">Traditional RAG</option>
@@ -24,7 +24,7 @@ function RAGDropdown({ value, onChange, response, filename }: RAGDropdownProps) 
         <option value="Graph RAG">Graph RAG</option>
       </select>
       {(response || filename) && (
-        <div className="mt-2 p-2 bg-gray-100 rounded-md w-full overflow-x-auto" style={{ maxHeight: 'calc(90vh - 100px)', overflowY: 'auto' }}>
+        <div className="mt-2 p-2 bg-gray-100 rounded-md w-full overflow-x-auto" style={{ maxHeight: 'calc(90vh - 200px)', overflowY: 'auto' }}>
           <pre className="whitespace-pre-wrap break-words text-sm">
             {filename && `Uploaded file: ${filename}\n`}
             {response}
@@ -183,49 +183,43 @@ export default function ApiFetch() {
             </>
           ) : (
             <div className="flex flex-col w-full">
-              <div className="flex justify-between w-full mb-4">
-                <div className="w-1/3 flex justify-center">
-                  <div className="w-3/4">
-                    <RAGDropdown
-                      value={selectedOption}
-                      onChange={handleSelectChange}
-                      response={queryResponses[0]}
-                      filename={fileInfo?.filename || null}
-                    />
-                  </div>
+              <div className="flex justify-between w-full mb-4 space-x-4">
+                <div className="w-1/3">
+                  <RAGDropdown
+                    value={selectedOption}
+                    onChange={handleSelectChange}
+                    response={queryResponses[0]}
+                    filename={fileInfo?.filename || null}
+                  />
                 </div>
 
-                <div className="w-1/3 flex justify-center">
-                  <div className="w-3/4 relative">
-                    <RAGDropdown
-                      value={selectedOption2}
-                      onChange={handleSelectChange2}
-                      response={queryResponses[1]}
-                      filename={fileInfo?.filename || null}
-                    />
-                    {selectedOption2 && !showThreeDropdowns && !queryResponses[1] && (
-                      <div className="absolute left-0 right-0 mt-2">
-                        <button
-                          onClick={handleAddRAGMethod}
-                          className="p-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 w-full"
-                        >
-                          Choose another RAG method
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                <div className="w-1/3">
+                  <RAGDropdown
+                    value={selectedOption2}
+                    onChange={handleSelectChange2}
+                    response={queryResponses[1]}
+                    filename={fileInfo?.filename || null}
+                  />
+                  {selectedOption2 && !showThreeDropdowns && !queryResponses[1] && (
+                    <div className="mt-2">
+                      <button
+                        onClick={handleAddRAGMethod}
+                        className="p-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 w-full"
+                      >
+                        Choose another RAG method
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {showThreeDropdowns && (
-                  <div className="w-1/3 flex justify-center">
-                    <div className="w-3/4">
-                      <RAGDropdown
-                        value={selectedOption3}
-                        onChange={handleSelectChange3}
-                        response={queryResponses[2]}
-                        filename={fileInfo?.filename || null}
-                      />
-                    </div>
+                  <div className="w-1/3">
+                    <RAGDropdown
+                      value={selectedOption3}
+                      onChange={handleSelectChange3}
+                      response={queryResponses[2]}
+                      filename={fileInfo?.filename || null}
+                    />
                   </div>
                 )}
               </div>

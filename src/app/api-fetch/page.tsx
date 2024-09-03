@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import '../globals.css';
 import { FaCog, FaUpload } from 'react-icons/fa';
+import Link from 'next/link';
 
 interface RAGDropdownProps {
   value: string | null;
@@ -226,13 +227,40 @@ export default function ApiFetch() {
     }
   };
 
+  const pages = [
+    { name: "Playground", path: "/playground" },
+    { name: "Evaluation", path: "/evaluation" },
+    { name: "RAG Agent", path: "/rag-agent" }
+  ];
+
+  const currentPath = "/playground"; // This should be dynamically set based on the current route
+
   return (
     <div className="flex flex-col h-screen">
       <header className="flex h-20 bg-black text-white">
         <div className="w-1/5 flex items-center justify-center">
-          <h1 className="text-xl font-bold">rag.io</h1>
+          <h1 className="text-4xl font-bold">rag.io</h1>
         </div>
-        <div className="w-4/5"></div>
+        <div className="w-4/5 flex items-center justify-end pr-8">
+          <div className="flex">
+            {pages.map((page) => (
+              <Link 
+                key={page.name} 
+                href={page.path}
+                className={`
+                  px-4 py-12 rounded-lg transition-colors duration-300
+                  ${currentPath === page.path 
+                    ? "bg-white text-black" 
+                    : "bg-black text-white hover:bg-white hover:text-black"
+                  }
+                  h-[20px] flex items-center justify-center
+                `}
+              >
+                {page.name}
+              </Link>
+            ))}
+          </div>
+        </div>
       </header>
 
       <main className="flex-1 p-4 bg-white text-black relative overflow-x-auto">

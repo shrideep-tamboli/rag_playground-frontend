@@ -95,9 +95,10 @@ function RAGDropdown({ value, onChange, response, filename, onFineTuningChange }
               className="p-2 border border-gray-300 rounded-md w-full mb-4"
             >
               <option value="" disabled>Select LLM</option>
-              <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-              <option value="gpt-4">GPT-4</option>
-              <option value="claude-v1">Claude v1</option>
+              <option value="llama-3.1">Llama 3.1 <i>(default)</i></option>
+              <option value="gpt-3.5-turbo">GPT-3.5 Turbo <i>(api key required)</i></option>
+              <option value="gpt-4">GPT-4 <i>(api key required)</i></option>
+              <option value="claude-v1">Claude v1 <i>(api key required)</i></option>
             </select>
             <select
               value={selectedFramework}
@@ -125,9 +126,9 @@ function RAGDropdown({ value, onChange, response, filename, onFineTuningChange }
               className="p-2 border border-gray-300 rounded-md w-full mb-4"
             >
               <option value="" disabled>Select Embedding Model</option>
-              <option value="openai">OpenAI Embeddings</option>
-              <option value="huggingface">HuggingFace Embeddings</option>
-              <option value="cohere">Cohere Embeddings</option>
+              <option value="openai">OpenAI Embeddings (api key required)</option>
+              <option value="huggingface">HuggingFace Embeddings (default)</option>
+              <option value="cohere">Cohere Embeddings (api key required)</option>
             </select>
             <select
               value={selectedChunkSize}

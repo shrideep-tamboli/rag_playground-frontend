@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from 'react';
 import '../globals.css';
-import { FaCog } from 'react-icons/fa';
+import { FaCog, FaUpload } from 'react-icons/fa';
 
 interface RAGDropdownProps {
   value: string | null;
@@ -224,21 +224,7 @@ export default function ApiFetch() {
   return (
     <div className="flex">
       <aside className="w-64 h-screen bg-black p-4 pt-12 text-white">
-        <h1 className="text-xl font-bold mb-4">RAG Playground.io</h1>
-        <ul>
-          <li className="mb-2 pt-5">
-            <label htmlFor="fileInput" className="cursor-pointer">
-              Upload Document
-              <input //user select file using input
-                type="file"
-                id="fileInput"
-                className="hidden"
-                onChange={handleFileUpload} //call handleFileUpload when file is selected
-                onClick={() => console.log('File input clicked')}
-              />
-            </label>
-          </li>
-        </ul>
+        <h1 className="text-xl font-bold mb-4">rag.io</h1>
       </aside>
 
       <main className="flex-1 p-4 bg-white text-black relative overflow-x-auto">
@@ -313,14 +299,32 @@ export default function ApiFetch() {
         </div>
         {(selectedOption || selectedOption2 || selectedOption3 || showTwoDropdowns) && (
           <div className="absolute bottom-0 left-0 right-0 pb-10 flex justify-center items-center">
-            <input
-              type="text"
-              placeholder="Enter your query here"
-              className="p-2 border border-gray-300 rounded-md w-[70%]"
-              value={inputText}
-              onChange={handleInputChange}
-              onKeyPress={handleInputSubmit}
-            />
+            <div className="relative w-[70%]">
+              <input
+                type="text"
+                placeholder="Enter your query here"
+                className="p-2 pr-10 border border-gray-300 rounded-md w-full"
+                value={inputText}
+                onChange={handleInputChange}
+                onKeyPress={handleInputSubmit}
+              />
+              <label 
+                htmlFor="fileInput" 
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer group"
+              >
+                <FaUpload className="text-gray-500 group-hover:text-gray-700" />
+                <span className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                  File Upload
+                </span>
+                <input
+                  type="file"
+                  id="fileInput"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  onClick={() => console.log('File input clicked')}
+                />
+              </label>
+            </div>
             {(queryResponses[0] || queryResponses[1] || queryResponses[2]) && !showThreeDropdowns && (
               <button
                 onClick={handleAddRAGMethod}

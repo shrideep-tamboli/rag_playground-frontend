@@ -33,24 +33,56 @@ async def upload_file(file: UploadFile = File(...)):
 async def process_query(request: ProcessRequest):
     received_data = []
     rag_methods = []
-    if request.ragMethod1:
-        received_data.append(f"Received RAG method1: {request.ragMethod1}")
-        rag_methods.append({"index": 1, "method": request.ragMethod1})
-    if request.ragMethod2:
-        received_data.append(f"Received RAG method2: {request.ragMethod2}")
-        rag_methods.append({"index": 2, "method": request.ragMethod2})
-    if request.ragMethod3:
-        received_data.append(f"Received RAG method3: {request.ragMethod3}")
-        rag_methods.append({"index": 3, "method": request.ragMethod3})
+    rag_results = []
+
+    for i, method in enumerate([request.ragMethod1, request.ragMethod2, request.ragMethod3], start=1):
+        if method:
+            received_data.append(f"Received RAG method{i}: {method}")
+            rag_methods.append({"index": i, "method": method})
+            
+            if method == "Traditional RAG":
+                result = vector_retrieval(method, request.query)
+            elif method == "Multi-modal RAG":
+                result = multi_modal_rag(method, request.query)
+            elif method == "Agentic RAG":
+                result = agentic_rag(method, request.query)
+            elif method == "Graph RAG":
+                result = graph_rag(method, request.query)
+            else:
+                result = None
+
+            if result:
+                rag_results.append({"method": method, "result": result})
+
     if request.query:
         received_data.append(f"Received query: {request.query}")
     
     for data in received_data:
         print(data)
     
-    return {
+    response = {
         "message": "Data received successfully",
         "query": request.query,
         "query_length": len(request.query),
-        "rag_methods": rag_methods
+        "rag_methods": rag_methods,
+        "rag_results": rag_results
     }
+
+    return response
+
+#Update the function to return the actual output of the RAG function
+def vector_retrieval(rag_method: str, query: str):
+    temp_var = rag_method + " " + query
+    return "Vector Retrieval: " + temp_var
+
+def multi_modal_rag(rag_method: str, query: str):
+    temp_var = rag_method + " " + query
+    return "Multi-modal RAG: " + temp_var
+
+def agentic_rag(rag_method: str, query: str):
+    temp_var = rag_method + " " + query
+    return "Agentic RAG: " + temp_var
+
+def graph_rag(rag_method: str, query: str):
+    temp_var = rag_method + " " + query
+    return "Graph RAG: " + temp_var

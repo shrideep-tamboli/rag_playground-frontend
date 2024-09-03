@@ -1,5 +1,5 @@
 import { Button } from "@/app/components/ui/button";
-
+import { UserButton } from "@clerk/nextjs";
 export default async function Home() {
   return (
     <div className="w-screen min-h-screen bg-gradient-to-r from-rose-100 to-teal-100">
@@ -7,6 +7,7 @@ export default async function Home() {
          <div className="flex flex-col items-center text-center">
            <div className="felx items-center">
             <h1 className="text-4xl font-bold text-gray-900">RAG.io</h1>
+            <UserButton afterSignOutUrl="/"></UserButton>        
            </div>
          </div>
       </div>

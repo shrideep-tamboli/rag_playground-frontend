@@ -227,10 +227,13 @@ export default function ApiFetch() {
   };
 
   return (
-    <div className="flex">
-      <aside className="w-64 h-screen bg-black p-4 pt-12 text-white">
-        <h1 className="text-xl font-bold mb-4">rag.io</h1>
-      </aside>
+    <div className="flex flex-col h-screen">
+      <header className="flex h-20 bg-black text-white">
+        <div className="w-1/5 flex items-center justify-center">
+          <h1 className="text-xl font-bold">rag.io</h1>
+        </div>
+        <div className="w-4/5"></div>
+      </header>
 
       <main className="flex-1 p-4 bg-white text-black relative overflow-x-auto">
         <div className="flex flex-col items-center pt-10">

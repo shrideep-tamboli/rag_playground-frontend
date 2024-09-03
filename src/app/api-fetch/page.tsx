@@ -25,12 +25,17 @@ function RAGDropdown({ value, onChange, response, filename, onFineTuningChange }
 
   return (
     <div className="w-full p-6 border-2 border-gray-300 rounded-lg relative">
-      <button
-        onClick={() => setIsDialogOpen(true)}
-        className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
-      >
-        <FaCog size={20} />
-      </button>
+      <div className="absolute top-2 right-2 group">
+        <button
+          onClick={() => setIsDialogOpen(true)}
+          className="text-gray-600 hover:text-gray-800 focus:outline-none"
+        >
+          <FaCog size={20} />
+        </button>
+        <span className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+          Fine Tuning
+        </span>
+      </div>
       
       <div className="mt-4">
         <select 

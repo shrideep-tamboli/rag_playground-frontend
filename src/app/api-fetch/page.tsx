@@ -24,7 +24,7 @@ function RAGDropdown({ value, onChange, response, filename, onFineTuningChange }
   };
 
   return (
-    <div className="w-full p-4 border-2 border-gray-300 rounded-lg relative">
+    <div className="w-full p-6 border-2 border-gray-300 rounded-lg relative">
       <button
         onClick={() => setIsDialogOpen(true)}
         className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
@@ -32,17 +32,20 @@ function RAGDropdown({ value, onChange, response, filename, onFineTuningChange }
         <FaCog size={20} />
       </button>
       
-      <select 
-        value={value || ''}
-        onChange={onChange}
-        className="p-2 border border-gray-300 rounded-md w-full mb-2"
-      >
-        <option value="" disabled>Choose a RAG method</option>
-        <option value="Traditional RAG">Traditional RAG</option>
-        <option value="Multi-modal RAG">Multi-modal RAG</option>
-        <option value="Agentic RAG">Agentic RAG</option>
-        <option value="Graph RAG">Graph RAG</option>
-      </select>
+      <div className="mt-4">
+        <select 
+          value={value || ''}
+          onChange={onChange}
+          className="p-2 border border-gray-300 rounded-md w-full mb-2"
+        >
+          <option value="" disabled>Choose a RAG method</option>
+          <option value="Traditional RAG">Traditional RAG</option>
+          <option value="Multi-modal RAG">Multi-modal RAG</option>
+          <option value="Agentic RAG">Agentic RAG</option>
+          <option value="Graph RAG">Graph RAG</option>
+        </select>
+      </div>
+      
       {(response || filename) && (
         <div className="mt-2 p-2 bg-gray-100 rounded-md w-full overflow-x-auto" style={{ maxHeight: 'calc(90vh - 200px)', overflowY: 'auto' }}>
           <pre className="whitespace-pre-wrap break-words text-sm">

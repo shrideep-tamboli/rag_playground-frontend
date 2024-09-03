@@ -94,7 +94,7 @@ export default function ApiFetch() {
         console.log('Server response:', result);
         
         const newResponses = result.rag_methods.map((method: { index: number, method: string }) => 
-          `RAG Method: ${method.method}\nReceived query: ${result.query}\nQuery length: ${result.query_length}`
+          `RAG Method: ${method.method}\nReceived query: ${result.query}\nQuery length: ${result.query_length} \nRagFunctionOutput: ${result.rag_results[method.index - 1].result} `
         );
         setQueryResponses(newResponses);
       } catch (error) {

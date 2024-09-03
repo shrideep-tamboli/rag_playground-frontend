@@ -1,17 +1,37 @@
 "use client"
 import { useEffect, useState } from 'react';
 import '../globals.css';
+import { FaCog } from 'react-icons/fa';
 
 interface RAGDropdownProps {
   value: string | null;
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   response: string | null;
   filename: string | null;
+  onFineTuningChange: (llm: string, framework: string) => void;
 }
 
-function RAGDropdown({ value, onChange, response, filename }: RAGDropdownProps) {
+function RAGDropdown({ value, onChange, response, filename, onFineTuningChange }: RAGDropdownProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedLLM, setSelectedLLM] = useState('');
+  const [selectedFramework, setSelectedFramework] = useState('');
+
+  const handleFineTuningClose = () => {
+    setIsDialogOpen(false);
+    if (selectedLLM && selectedFramework) {
+      onFineTuningChange(selectedLLM, selectedFramework);
+    }
+  };
+
   return (
-    <div className="w-full p-4 border-2 border-gray-300 rounded-lg">
+    <div className="w-full p-4 border-2 border-gray-300 rounded-lg relative">
+      <button
+        onClick={() => setIsDialogOpen(true)}
+        className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
+      >
+        <FaCog size={20} />
+      </button>
+      
       <select 
         value={value || ''}
         onChange={onChange}
@@ -31,6 +51,42 @@ function RAGDropdown({ value, onChange, response, filename }: RAGDropdownProps) 
           </pre>
         </div>
       )}
+
+      {isDialogOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96">
+            <h2 className="text-xl font-bold mb-4">Fine Tuning</h2>
+            <select
+              value={selectedLLM}
+              onChange={(e) => setSelectedLLM(e.target.value)}
+              className="p-2 border border-gray-300 rounded-md w-full mb-4"
+            >
+              <option value="" disabled>Select LLM</option>
+              <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+              <option value="gpt-4">GPT-4</option>
+              <option value="claude-v1">Claude v1</option>
+            </select>
+            <select
+              value={selectedFramework}
+              onChange={(e) => setSelectedFramework(e.target.value)}
+              className="p-2 border border-gray-300 rounded-md w-full mb-4"
+            >
+              <option value="" disabled>Select Framework</option>
+              <option value="langchain">LangChain</option>
+              <option value="llama-index">LlamaIndex</option>
+              <option value="haystack">Haystack</option>
+            </select>
+            <div className="flex justify-end">
+              <button
+                onClick={handleFineTuningClose}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -45,6 +101,7 @@ export default function ApiFetch() {
   const [showTwoDropdowns, setShowTwoDropdowns] = useState(false);
   const [showThreeDropdowns, setShowThreeDropdowns] = useState(false);
   const [queryResponses, setQueryResponses] = useState<(string | null)[]>([null, null, null]);
+  const [fineTuningSettings, setFineTuningSettings] = useState<{ [key: number]: { llm: string, framework: string } }>({});
 
   useEffect(() => {
     fetch('http://127.0.0.1:8000/') // Adjust the port based on your backend
@@ -68,6 +125,13 @@ export default function ApiFetch() {
     setInputText(event.target.value);
   };
 
+  const handleFineTuningChange = (index: number, llm: string, framework: string) => {
+    setFineTuningSettings(prev => ({
+      ...prev,
+      [index]: { llm, framework }
+    }));
+  };
+
   const handleInputSubmit = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -79,9 +143,24 @@ export default function ApiFetch() {
         const payload: any = {
           query: inputText,
         };
-        if (selectedOption) payload.ragMethod1 = selectedOption;
-        if (selectedOption2) payload.ragMethod2 = selectedOption2;
-        if (selectedOption3) payload.ragMethod3 = selectedOption3;
+        if (selectedOption) {
+          payload.ragMethod1 = selectedOption;
+          if (fineTuningSettings[0]) {
+            payload.fineTuning1 = fineTuningSettings[0];
+          }
+        }
+        if (selectedOption2) {
+          payload.ragMethod2 = selectedOption2;
+          if (fineTuningSettings[1]) {
+            payload.fineTuning2 = fineTuningSettings[1];
+          }
+        }
+        if (selectedOption3) {
+          payload.ragMethod3 = selectedOption3;
+          if (fineTuningSettings[2]) {
+            payload.fineTuning3 = fineTuningSettings[2];
+          }
+        }
 
         const response = await fetch('http://127.0.0.1:8000/process', {
           method: 'POST',
@@ -156,7 +235,6 @@ export default function ApiFetch() {
               />
             </label>
           </li>
-          <li className="mb-2 pt-5">Fine-Tuning</li>
         </ul>
       </aside>
 
@@ -170,6 +248,7 @@ export default function ApiFetch() {
                   onChange={handleSelectChange}
                   response={queryResponses[0]}
                   filename={fileInfo?.filename || null}
+                  onFineTuningChange={(llm, framework) => handleFineTuningChange(0, llm, framework)}
                 />
               </div>
               {selectedOption && !queryResponses[0] && (
@@ -190,6 +269,7 @@ export default function ApiFetch() {
                     onChange={handleSelectChange}
                     response={queryResponses[0]}
                     filename={fileInfo?.filename || null}
+                    onFineTuningChange={(llm, framework) => handleFineTuningChange(0, llm, framework)}
                   />
                 </div>
 
@@ -199,6 +279,7 @@ export default function ApiFetch() {
                     onChange={handleSelectChange2}
                     response={queryResponses[1]}
                     filename={fileInfo?.filename || null}
+                    onFineTuningChange={(llm, framework) => handleFineTuningChange(1, llm, framework)}
                   />
                   {selectedOption2 && !showThreeDropdowns && !queryResponses[1] && (
                     <div className="mt-2">
@@ -219,6 +300,7 @@ export default function ApiFetch() {
                       onChange={handleSelectChange3}
                       response={queryResponses[2]}
                       filename={fileInfo?.filename || null}
+                      onFineTuningChange={(llm, framework) => handleFineTuningChange(2, llm, framework)}
                     />
                   </div>
                 )}

@@ -53,7 +53,7 @@ function RAGDropdown({ value, onChange, response, filename, onFineTuningChange }
       </div>
       
       {(response || filename) && (
-        <div className="mt-2 p-2 bg-gray-100 rounded-md w-full overflow-x-auto" style={{ maxHeight: 'calc(90vh - 200px)', overflowY: 'auto' }}>
+        <div className="mt-2 p-2 bg-gray-100 rounded-md w-full overflow-x-auto" style={{ maxHeight: 'calc(55vh)', overflowY: 'auto' }}>
           <pre className="whitespace-pre-wrap break-words text-sm">
             {filename && `Uploaded file: ${filename}\n`}
             {response}
@@ -264,7 +264,7 @@ export default function ApiFetch() {
       </header>
 
       <main className="flex-1 p-4 bg-white text-black relative overflow-x-auto">
-        <div className="flex flex-col items-center pt-10">
+        <div className="flex flex-col items-center pt-0">
           {!showTwoDropdowns ? (
             <>
               <div className="w-2/5 mb-4">
@@ -287,8 +287,8 @@ export default function ApiFetch() {
             </>
           ) : (
             <div className="flex flex-col w-full">
-              <div className="flex justify-between w-full mb-4 space-x-4">
-                <div className="w-1/3">
+              <div className={`flex mb-4 px-4 ${showThreeDropdowns ? 'justify-between' : 'justify-center space-x-5'}`}>
+                <div className={showThreeDropdowns ? 'w-[calc(33%-16px)]' : 'w-[calc(50%-10px)] max-w-[400px]'}>
                   <RAGDropdown
                     value={selectedOption}
                     onChange={handleSelectChange}
@@ -298,7 +298,7 @@ export default function ApiFetch() {
                   />
                 </div>
 
-                <div className="w-1/3">
+                <div className={showThreeDropdowns ? 'w-[calc(33%-16px)]' : 'w-[calc(50%-10px)] max-w-[400px]'}>
                   <RAGDropdown
                     value={selectedOption2}
                     onChange={handleSelectChange2}
@@ -319,7 +319,7 @@ export default function ApiFetch() {
                 </div>
 
                 {showThreeDropdowns && (
-                  <div className="w-1/3">
+                  <div className="w-[calc(33%-16px)]">
                     <RAGDropdown
                       value={selectedOption3}
                       onChange={handleSelectChange3}

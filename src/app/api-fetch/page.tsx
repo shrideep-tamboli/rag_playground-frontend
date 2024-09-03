@@ -288,7 +288,7 @@ export default function ApiFetch() {
           ) : (
             <div className="flex flex-col w-full">
               <div className={`flex mb-4 px-4 ${showThreeDropdowns ? 'justify-between' : 'justify-center space-x-5'}`}>
-                <div className={showThreeDropdowns ? 'w-[calc(33%-16px)]' : 'w-[calc(50%-10px)] max-w-[400px]'}>
+                <div className={showThreeDropdowns ? 'w-[calc(33%-16px)]' : 'w-[calc(50%-10px)] max-w-[540px]'}>
                   <RAGDropdown
                     value={selectedOption}
                     onChange={handleSelectChange}
@@ -298,7 +298,7 @@ export default function ApiFetch() {
                   />
                 </div>
 
-                <div className={showThreeDropdowns ? 'w-[calc(33%-16px)]' : 'w-[calc(50%-10px)] max-w-[400px]'}>
+                <div className={showThreeDropdowns ? 'w-[calc(33%-16px)]' : 'w-[calc(50%-10px)] max-w-[540px]'}>
                   <RAGDropdown
                     value={selectedOption2}
                     onChange={handleSelectChange2}

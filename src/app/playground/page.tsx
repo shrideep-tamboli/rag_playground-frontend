@@ -10,19 +10,42 @@ interface RAGDropdownProps {
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   response: string | null;
   filename: string | null;
-  onFineTuningChange: (llm: string, framework: string) => void;
+  onFineTuningChange: (settings: Partial<FineTuningSettings>) => void;
 }
+
+type FineTuningSettings = {
+  llm: string;
+  framework: string;
+  textSplitter: string;
+  embeddingModel: string;
+  chunkSize: string;
+  vectorStore: string;
+};
 
 function RAGDropdown({ value, onChange, response, filename, onFineTuningChange }: RAGDropdownProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedLLM, setSelectedLLM] = useState('');
   const [selectedFramework, setSelectedFramework] = useState('');
+  const [selectedTextSplitter, setSelectedTextSplitter] = useState('');
+  const [selectedEmbeddingModel, setSelectedEmbeddingModel] = useState('');
+  const [selectedChunkSize, setSelectedChunkSize] = useState('');
+  const [selectedVectorStore, setSelectedVectorStore] = useState('');
 
   const handleFineTuningClose = () => {
     setIsDialogOpen(false);
-    if (selectedLLM && selectedFramework) {
-      onFineTuningChange(selectedLLM, selectedFramework);
-    }
+    const fineTuningSettings = {
+      llm: selectedLLM,
+      framework: selectedFramework,
+      textSplitter: selectedTextSplitter,
+      embeddingModel: selectedEmbeddingModel,
+      chunkSize: selectedChunkSize,
+      vectorStore: selectedVectorStore
+    };
+    // Filter out empty values
+    const filteredSettings = Object.fromEntries(
+      Object.entries(fineTuningSettings).filter(([_, v]) => v !== '')
+    );
+    onFineTuningChange(filteredSettings);
   };
 
   return (
@@ -64,7 +87,7 @@ function RAGDropdown({ value, onChange, response, filename, onFineTuningChange }
 
       {isDialogOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96">
+          <div className="bg-white p-6 rounded-lg w-96 max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">Fine Tuning</h2>
             <select
               value={selectedLLM}
@@ -85,6 +108,46 @@ function RAGDropdown({ value, onChange, response, filename, onFineTuningChange }
               <option value="langchain">LangChain</option>
               <option value="llama-index">LlamaIndex</option>
               <option value="haystack">Haystack</option>
+            </select>
+            <select
+              value={selectedTextSplitter}
+              onChange={(e) => setSelectedTextSplitter(e.target.value)}
+              className="p-2 border border-gray-300 rounded-md w-full mb-4"
+            >
+              <option value="" disabled>Select Text Splitter</option>
+              <option value="character">Character Text Splitter</option>
+              <option value="token">Token Text Splitter</option>
+              <option value="recursive_character">Recursive Character Text Splitter</option>
+            </select>
+            <select
+              value={selectedEmbeddingModel}
+              onChange={(e) => setSelectedEmbeddingModel(e.target.value)}
+              className="p-2 border border-gray-300 rounded-md w-full mb-4"
+            >
+              <option value="" disabled>Select Embedding Model</option>
+              <option value="openai">OpenAI Embeddings</option>
+              <option value="huggingface">HuggingFace Embeddings</option>
+              <option value="cohere">Cohere Embeddings</option>
+            </select>
+            <select
+              value={selectedChunkSize}
+              onChange={(e) => setSelectedChunkSize(e.target.value)}
+              className="p-2 border border-gray-300 rounded-md w-full mb-4"
+            >
+              <option value="" disabled>Select Chunk Size</option>
+              <option value="256">256 tokens</option>
+              <option value="512">512 tokens</option>
+              <option value="1024">1024 tokens</option>
+            </select>
+            <select
+              value={selectedVectorStore}
+              onChange={(e) => setSelectedVectorStore(e.target.value)}
+              className="p-2 border border-gray-300 rounded-md w-full mb-4"
+            >
+              <option value="" disabled>Select Vector Store</option>
+              <option value="pinecone">Pinecone</option>
+              <option value="faiss">FAISS</option>
+              <option value="chroma">Chroma</option>
             </select>
             <div className="flex justify-end">
               <button
@@ -111,7 +174,7 @@ export default function ApiFetch() {
   const [showTwoDropdowns, setShowTwoDropdowns] = useState(false);
   const [showThreeDropdowns, setShowThreeDropdowns] = useState(false);
   const [queryResponses, setQueryResponses] = useState<(string | null)[]>([null, null, null]);
-  const [fineTuningSettings, setFineTuningSettings] = useState<{ [key: number]: { llm: string, framework: string } }>({});
+  const [fineTuningSettings, setFineTuningSettings] = useState<{ [key: number]: Partial<FineTuningSettings> }>({});
 
   useEffect(() => {
     fetch('http://127.0.0.1:8000/') // Adjust the port based on your backend
@@ -135,10 +198,10 @@ export default function ApiFetch() {
     setInputText(event.target.value);
   };
 
-  const handleFineTuningChange = (index: number, llm: string, framework: string) => {
+  const handleFineTuningChange = (index: number, settings: Partial<FineTuningSettings>) => {
     setFineTuningSettings(prev => ({
       ...prev,
-      [index]: { llm, framework }
+      [index]: settings
     }));
   };
 
@@ -153,24 +216,18 @@ export default function ApiFetch() {
         const payload: any = {
           query: inputText,
         };
-        if (selectedOption) {
-          payload.ragMethod1 = selectedOption;
-          if (fineTuningSettings[0]) {
-            payload.fineTuning1 = fineTuningSettings[0];
+        
+        [selectedOption, selectedOption2, selectedOption3].forEach((option, index) => {
+          if (option) {
+            payload[`ragMethod${index + 1}`] = option;
+            const settings = fineTuningSettings[index];
+            if (settings && Object.keys(settings).length > 0) {
+              payload[`fineTuning${index + 1}`] = settings;
+            }
           }
-        }
-        if (selectedOption2) {
-          payload.ragMethod2 = selectedOption2;
-          if (fineTuningSettings[1]) {
-            payload.fineTuning2 = fineTuningSettings[1];
-          }
-        }
-        if (selectedOption3) {
-          payload.ragMethod3 = selectedOption3;
-          if (fineTuningSettings[2]) {
-            payload.fineTuning3 = fineTuningSettings[2];
-          }
-        }
+        });
+
+        console.log('Sending payload:', payload); // Log the payload for debugging
 
         const response = await fetch('http://127.0.0.1:8000/process', {
           method: 'POST',
@@ -179,12 +236,22 @@ export default function ApiFetch() {
           },
           body: JSON.stringify(payload),
         });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const result = await response.json();
         console.log('Server response:', result);
         
-        const newResponses = result.rag_methods.map((method: { index: number, method: string }) => 
-          `RAG Method: ${method.method}\nReceived query: ${result.query}\nQuery length: ${result.query_length} \nRagFunctionOutput: ${result.rag_results[method.index - 1].result} `
-        );
+        const newResponses = result.rag_methods.map((method: { index: number, method: string }) => {
+          const ragResult = result.rag_results.find((r: any) => r.method === method.method);
+          return `RAG Method: ${method.method}
+Received query: ${result.query}
+Query length: ${result.query_length}
+RagFunctionOutput: ${ragResult ? ragResult.result : 'No result'}
+${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 2)}` : ''}`;
+        });
         setQueryResponses(newResponses);
       } catch (error) {
         console.error('Error sending data to server:', error);
@@ -250,7 +317,7 @@ export default function ApiFetch() {
                   onChange={handleSelectChange}
                   response={queryResponses[0]}
                   filename={fileInfo?.filename || null}
-                  onFineTuningChange={(llm, framework) => handleFineTuningChange(0, llm, framework)}
+                  onFineTuningChange={(settings) => handleFineTuningChange(0, settings)}
                 />
               </div>
               {selectedOption && !queryResponses[0] && (
@@ -271,7 +338,7 @@ export default function ApiFetch() {
                     onChange={handleSelectChange}
                     response={queryResponses[0]}
                     filename={fileInfo?.filename || null}
-                    onFineTuningChange={(llm, framework) => handleFineTuningChange(0, llm, framework)}
+                    onFineTuningChange={(settings) => handleFineTuningChange(0, settings)}
                   />
                 </div>
 
@@ -281,7 +348,7 @@ export default function ApiFetch() {
                     onChange={handleSelectChange2}
                     response={queryResponses[1]}
                     filename={fileInfo?.filename || null}
-                    onFineTuningChange={(llm, framework) => handleFineTuningChange(1, llm, framework)}
+                    onFineTuningChange={(settings) => handleFineTuningChange(1, settings)}
                   />
                   {selectedOption2 && !showThreeDropdowns && !queryResponses[1] && (
                     <div className="mt-2">
@@ -302,7 +369,7 @@ export default function ApiFetch() {
                       onChange={handleSelectChange3}
                       response={queryResponses[2]}
                       filename={fileInfo?.filename || null}
-                      onFineTuningChange={(llm, framework) => handleFineTuningChange(2, llm, framework)}
+                      onFineTuningChange={(settings) => handleFineTuningChange(2, settings)}
                     />
                   </div>
                 )}

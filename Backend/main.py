@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict, Any
 
 app = FastAPI()
 
@@ -14,8 +14,12 @@ app.add_middleware(
 )
 
 class FineTuning(BaseModel):
-    llm: str
-    framework: str
+    llm: Optional[str] = None
+    framework: Optional[str] = None
+    textSplitter: Optional[str] = None
+    embeddingModel: Optional[str] = None
+    chunkSize: Optional[str] = None
+    vectorStore: Optional[str] = None
 
 class ProcessRequest(BaseModel):
     ragMethod1: Optional[str] = None
@@ -43,27 +47,17 @@ async def process_query(request: ProcessRequest):
     rag_methods = []
     rag_results = []
 
-    for i, method in enumerate([request.ragMethod1, request.ragMethod2, request.ragMethod3], start=1):
+    for i in range(1, 4):
+        method = getattr(request, f'ragMethod{i}')
+        fine_tuning = getattr(request, f'fineTuning{i}')
         if method:
-            fine_tuning = getattr(request, f'fineTuning{i}')
             received_data.append(f"Received RAG method{i}: {method}")
             if fine_tuning:
-                received_data.append(f"Fine-tuning for method{i}: LLM={fine_tuning.llm}, Framework={fine_tuning.framework}")
-            rag_methods.append({"index": i, "method": method, "fine_tuning": fine_tuning})
+                received_data.append(f"Fine-tuning for method{i}: {fine_tuning.dict(exclude_none=True)}")
+            rag_methods.append({"index": i, "method": method, "fine_tuning": fine_tuning.dict(exclude_none=True) if fine_tuning else None})
             
-            if method == "Traditional RAG":
-                result = vector_retrieval(method, request.query, fine_tuning)
-            elif method == "Multi-modal RAG":
-                result = multi_modal_rag(method, request.query, fine_tuning)
-            elif method == "Agentic RAG":
-                result = agentic_rag(method, request.query, fine_tuning)
-            elif method == "Graph RAG":
-                result = graph_rag(method, request.query, fine_tuning)
-            else:
-                result = None
-
-            if result:
-                rag_results.append({"method": method, "result": result})
+            result = process_rag_method(method, request.query, fine_tuning)
+            rag_results.append({"method": method, "result": result})
 
     if request.query:
         received_data.append(f"Received query: {request.query}")
@@ -81,26 +75,9 @@ async def process_query(request: ProcessRequest):
 
     return response
 
-def vector_retrieval(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = None):
-    temp_var = rag_method + " " + query
+def process_rag_method(method: str, query: str, fine_tuning: Optional[FineTuning] = None) -> str:
+    result = f"{method} processing: {query}"
     if fine_tuning:
-        temp_var += f" (LLM: {fine_tuning.llm}, Framework: {fine_tuning.framework})"
-    return "Vector Retrieval: " + temp_var
-
-def multi_modal_rag(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = None):
-    temp_var = rag_method + " " + query
-    if fine_tuning:
-        temp_var += f" (LLM: {fine_tuning.llm}, Framework: {fine_tuning.framework})"
-    return "Multi-modal RAG: " + temp_var
-
-def agentic_rag(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = None):
-    temp_var = rag_method + " " + query
-    if fine_tuning:
-        temp_var += f" (LLM: {fine_tuning.llm}, Framework: {fine_tuning.framework})"
-    return "Agentic RAG: " + temp_var
-
-def graph_rag(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = None):
-    temp_var = rag_method + " " + query
-    if fine_tuning:
-        temp_var += f" (LLM: {fine_tuning.llm}, Framework: {fine_tuning.framework})"
-    return "Graph RAG: " + temp_var
+        fine_tuning_str = ", ".join(f"{k}={v}" for k, v in fine_tuning.dict(exclude_none=True).items())
+        result += f" (Fine-tuning: {fine_tuning_str})"
+    return result

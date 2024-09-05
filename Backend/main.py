@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Optional
 
 app = FastAPI()
 
@@ -47,17 +47,34 @@ async def process_query(request: ProcessRequest):
     rag_methods = []
     rag_results = []
 
-    for i in range(1, 4):
-        method = getattr(request, f'ragMethod{i}')
-        fine_tuning = getattr(request, f'fineTuning{i}')
+    for i, method in enumerate([request.ragMethod1, request.ragMethod2, request.ragMethod3], start=1):
         if method:
+            fine_tuning = getattr(request, f'fineTuning{i}')
             received_data.append(f"Received RAG method{i}: {method}")
             if fine_tuning:
-                received_data.append(f"Fine-tuning for method{i}: {fine_tuning.dict(exclude_none=True)}")
-            rag_methods.append({"index": i, "method": method, "fine_tuning": fine_tuning.dict(exclude_none=True) if fine_tuning else None})
+                fine_tuning_details = fine_tuning.dict(exclude_none=True)
+                fine_tuning_str = ", ".join(f"{k}={v}" for k, v in fine_tuning_details.items())
+                received_data.append(f"Fine-tuning for method{i}: {fine_tuning_str}")
+            rag_methods.append({
+                "index": i, 
+                "method": method, 
+                "fine_tuning": fine_tuning.dict(exclude_none=True) if fine_tuning else None
+            })
             
-            result = process_rag_method(method, request.query, fine_tuning)
-            rag_results.append({"method": method, "result": result})
+            # Call the appropriate RAG method function
+            if method == "Traditional RAG":
+                result = vector_retrieval(method, request.query, fine_tuning)
+            elif method == "Multi-modal RAG":
+                result = multi_modal_rag(method, request.query, fine_tuning)
+            elif method == "Agentic RAG":
+                result = agentic_rag(method, request.query, fine_tuning)
+            elif method == "Graph RAG":
+                result = graph_rag(method, request.query, fine_tuning)
+            else:
+                result = None
+
+            if result:
+                rag_results.append({"method": method, "result": result})
 
     if request.query:
         received_data.append(f"Received query: {request.query}")
@@ -75,9 +92,31 @@ async def process_query(request: ProcessRequest):
 
     return response
 
-def process_rag_method(method: str, query: str, fine_tuning: Optional[FineTuning] = None) -> str:
-    result = f"{method} processing: {query}"
+# RAG Method Functions
+def vector_retrieval(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = None):
+    temp_var = rag_method + " " + query
     if fine_tuning:
         fine_tuning_str = ", ".join(f"{k}={v}" for k, v in fine_tuning.dict(exclude_none=True).items())
-        result += f" (Fine-tuning: {fine_tuning_str})"
-    return result
+        temp_var += f" (Fine-tuning: {fine_tuning_str})"
+    return "Vector Retrieval: " + temp_var
+
+def multi_modal_rag(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = None):
+    temp_var = rag_method + " " + query
+    if fine_tuning:
+        fine_tuning_str = ", ".join(f"{k}={v}" for k, v in fine_tuning.dict(exclude_none=True).items())
+        temp_var += f" (Fine-tuning: {fine_tuning_str})"
+    return "Multi-modal RAG: " + temp_var
+
+def agentic_rag(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = None):
+    temp_var = rag_method + " " + query
+    if fine_tuning:
+        fine_tuning_str = ", ".join(f"{k}={v}" for k, v in fine_tuning.dict(exclude_none=True).items())
+        temp_var += f" (Fine-tuning: {fine_tuning_str})"
+    return "Agentic RAG: " + temp_var
+
+def graph_rag(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = None):
+    temp_var = rag_method + " " + query
+    if fine_tuning:
+        fine_tuning_str = ", ".join(f"{k}={v}" for k, v in fine_tuning.dict(exclude_none=True).items())
+        temp_var += f" (Fine-tuning: {fine_tuning_str})"
+    return "Graph RAG: " + temp_var

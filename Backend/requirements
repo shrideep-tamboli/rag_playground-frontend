@@ -2,3 +2,8 @@ fastapi
 uvicorn
 fastapi-cors
 python-multipart
+python-dotenv
+langchain
+langchain-openai
+pypdf
+langchain_community

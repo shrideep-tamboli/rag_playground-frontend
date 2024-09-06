@@ -92,21 +92,6 @@ async def process_query(request: ProcessRequest):
 
     return response
 
-############################################################################
-
-from dotenv import load_dotenv
-import os
-
-## api keys
-os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY2')
-
-## Setting up LLMOps
-os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
-
-## Setting up retrieval using langchain famework
-from langchain_openai import ChatOpenAI
-
 # RAG Method Functions
 def vector_retrieval(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = None):
     temp_var = rag_method + " " + query

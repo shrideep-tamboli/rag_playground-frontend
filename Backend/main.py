@@ -91,6 +91,18 @@ async def process_query(request: ProcessRequest):
     }
 
     return response
+#######################################################################################################
+
+import os
+## Environment varibale initialization
+os.environ["NEO4J_URI"] = os.getenv("NEO4J_URI")
+os.environ["NEO4J_USERNAME"] = os.getenv("NEO4J_USERNAME")
+os.environ["NEO4J_PASSWORD"] = os.getenv("NEO4J_PASSWORD")
+os.environ["NEO4J_DATABASE"] = os.getenv("NEO4J_DATABASE")
+os.environ["groq_api_key"] = os.getenv("groq_api_key")
+os.environ["OPENAI_API_KEY"] = os.getenv('OPENAI_API_KEY2')
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
 
 # RAG Method Functions
 def vector_retrieval(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = None):
@@ -120,3 +132,6 @@ def graph_rag(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = N
         fine_tuning_str = ", ".join(f"{k}={v}" for k, v in fine_tuning.dict(exclude_none=True).items())
         temp_var += f" (Fine-tuning: {fine_tuning_str})"
     return "Graph RAG: " + temp_var
+
+#######################################################################################################
+

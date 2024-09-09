@@ -47,6 +47,8 @@ async def process_query(request: ProcessRequest):
     rag_methods = []
     rag_results = []
 
+    print("Received request:", request)
+
     for i, method in enumerate([request.ragMethod1, request.ragMethod2, request.ragMethod3], start=1):
         if method:
             fine_tuning = getattr(request, f'fineTuning{i}')

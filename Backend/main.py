@@ -13,6 +13,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Global variable to store the uploaded file content
+uploaded_file_content = None
+
 class FineTuning(BaseModel):
     llm: Optional[str] = None
     framework: Optional[str] = None
@@ -36,10 +39,11 @@ def get_data():
 
 @app.post('/upload')
 async def upload_file(file: UploadFile = File(...)):
-    contents = await file.read()
-    file_length = len(contents)
-    print(f"File size:", file_length)
-    return {"filename": file.filename, "length": file_length}
+    global uploaded_file_content  # Use the global variable
+    uploaded_file_content = await file.read()  # Store the entire file content
+    file_length = len(uploaded_file_content)
+    print(f"Uploaded file size: {file_length} bytes")
+    return {"filename": file.filename, "length": file_length}  # Return the uploaded file info
 
 @app.post('/process')
 async def process_query(request: ProcessRequest):
@@ -48,6 +52,13 @@ async def process_query(request: ProcessRequest):
     rag_results = []
 
     print("Received request:", request)
+
+    # Access the global uploaded file content
+    file_content_str = ""
+    if uploaded_file_content is not None:
+        file_content_str = uploaded_file_content.decode('utf-8')  # Decode the binary content
+        received_data.append(f"Uploaded file size: {len(uploaded_file_content)} bytes")
+        received_data.append(f"File content: {file_content_str[:100]}...")  # Show first 100 chars
 
     for i, method in enumerate([request.ragMethod1, request.ragMethod2, request.ragMethod3], start=1):
         if method:
@@ -89,7 +100,9 @@ async def process_query(request: ProcessRequest):
         "query": request.query,
         "query_length": len(request.query),
         "rag_methods": rag_methods,
-        "rag_results": rag_results
+        "rag_results": rag_results,
+        "uploaded_file_size": len(uploaded_file_content) if uploaded_file_content else None,  # Include uploaded file size
+        "file_content": file_content_str[:100]  # Include the first 100 characters of the file content
     }
 
     return response

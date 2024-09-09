@@ -208,59 +208,60 @@ export default function ApiFetch() {
 
   const handleInputSubmit = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      event.preventDefault();
-      if (!selectedOption && !selectedOption2 && !selectedOption3) {
-        alert('Please select at least one RAG method');
-        return;
-      }
-      try {
-        const payload: any = {
-          query: inputText,
-        };
-        
-        [selectedOption, selectedOption2, selectedOption3].forEach((option, index) => {
-          if (option) {
-            payload[`ragMethod${index + 1}`] = option;
-            const settings = fineTuningSettings[index];
-            if (settings && Object.keys(settings).length > 0) {
-              payload[`fineTuning${index + 1}`] = settings;
-            }
-          }
-        });
-
-        console.log('Sending payload:', payload); // Log the payload for debugging
-
-        const response = await fetch('http://127.0.0.1:8000/process', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        event.preventDefault();
+        if (!selectedOption && !selectedOption2 && !selectedOption3) {
+            alert('Please select at least one RAG method');
+            return;
         }
-        
-        const result = await response.json();
-        console.log('Server response:', result);
-        
-        const newResponses = result.rag_methods.map((method: { index: number, method: string }) => {
-          const ragResult = result.rag_results.find((r: any) => r.method === method.method);
-          return `RAG Method: ${method.method}
-Received query: ${result.query}
-Query length: ${result.query_length}
-RagFunctionOutput: ${ragResult ? ragResult.result : 'No result'}
-${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 2)}` : ''}`;
-        });
-        setQueryResponses(newResponses);
-      } catch (error) {
-        console.error('Error sending data to server:', error);
-        setQueryResponses(['Error processing query', 'Error processing query', 'Error processing query']);
-      }
-      setInputText(''); // Clear the input after submission
+        try {
+            const payload: any = {
+                query: inputText,
+            };
+            
+            [selectedOption, selectedOption2, selectedOption3].forEach((option, index) => {
+                if (option) {
+                    payload[`ragMethod${index + 1}`] = option;
+                    const settings = fineTuningSettings[index];
+                    if (settings && Object.keys(settings).length > 0) {
+                        payload[`fineTuning${index + 1}`] = settings;
+                    }
+                }
+            });
+
+            console.log('Sending payload:', payload); // Log the payload for debugging
+
+            const response = await fetch('http://127.0.0.1:8000/process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('Server response:', result);
+            
+            const newResponses = result.rag_methods.map((method: { index: number, method: string }) => {
+                const ragResult = result.rag_results.find((r: any) => r.method === method.method);
+                return `RAG Method: ${method.method}
+            Received query: ${result.query}
+            Query length: ${result.query_length}
+            RagFunctionOutput: ${ragResult ? ragResult.result : 'No result'}
+            ${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 2)}` : ''}
+            Uploaded File Content: ${result.file_content}`;  // Include the first 100 characters of the file content
+                        });
+            setQueryResponses(newResponses);
+        } catch (error) {
+            console.error('Error sending data to server:', error);
+            setQueryResponses(['Error processing query', 'Error processing query', 'Error processing query']);
+        }
+        setInputText(''); // Clear the input after submission
     }
-  };
+};
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

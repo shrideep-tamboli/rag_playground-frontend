@@ -134,7 +134,7 @@ def vector_retrieval(rag_method: str, query: str, uploaded_file_name: str, file_
     elif uploaded_file_name.endswith('.pdf'):
         # Write the uploaded file content to a temporary file
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
-            temp_pdf.write(uploaded_file_content)
+            temp_pdf.write(file_content)
             temp_pdf_path = temp_pdf.name
         
         loader = PyPDFLoader(temp_pdf_path)  # Initialize the PDF loader

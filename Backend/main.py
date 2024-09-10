@@ -54,11 +54,8 @@ async def process_query(request: ProcessRequest):
     print("Received request:", request)
 ##
     # Access the global uploaded file content
-    file_content_str = ""
     if uploaded_file_content is not None:
-        file_content_str = uploaded_file_content.decode('utf-8')  # Decode the binary content
         received_data.append(f"Uploaded file size: {len(uploaded_file_content)} bytes")
-        received_data.append(f"File content: {file_content_str[:100]}...")  # Show first 100 chars
 
     for i, method in enumerate([request.ragMethod1, request.ragMethod2, request.ragMethod3], start=1):
         if method:
@@ -76,7 +73,7 @@ async def process_query(request: ProcessRequest):
             
             # Call the appropriate RAG method function
             if method == "Traditional RAG":
-                result = vector_retrieval(method, request.query, file_content_str, fine_tuning) ##pass file as an argument and expect file content from this argument
+                result = vector_retrieval(method, request.query, uploaded_file_content, fine_tuning) ##pass file as an argument and expect file content from this argument
             elif method == "Multi-modal RAG":
                 result = multi_modal_rag(method, request.query, fine_tuning)
             elif method == "Agentic RAG":
@@ -120,8 +117,16 @@ LANGCHAIN_TRACING_V2 = "true"
 LANGCHAIN_API_KEY = os.getenv("LANGCHAIN_API_KEY")
 
 # RAG Method Functions
-def vector_retrieval(rag_method: str, query: str, file_content: str, fine_tuning: Optional[FineTuning] = None):
-    temp_var = rag_method + " " + query + " " + file_content
+def vector_retrieval(rag_method: str, query: str, file_content: bytes, fine_tuning: Optional[FineTuning] = None):
+    # Handle the file content based on its type (text or binary)
+    try:
+        # Try decoding the file content as UTF-8 text (for text files)
+        file_content_str = file_content.decode('utf-8')
+    except UnicodeDecodeError:
+        # If the decoding fails, assume it's binary (e.g., PDF) and process it accordingly
+        file_content_str = "[Binary data]"
+
+    temp_var = rag_method + " " + query + " " + file_content_str  # Limit to first 100 characters for display
     if fine_tuning:
         fine_tuning_str = ", ".join(f"{k}={v}" for k, v in fine_tuning.dict(exclude_none=True).items())
         temp_var += f" (Fine-tuning: {fine_tuning_str})"

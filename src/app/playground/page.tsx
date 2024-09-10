@@ -248,11 +248,11 @@ export default function ApiFetch() {
             const newResponses = result.rag_methods.map((method: { index: number, method: string }) => {
                 const ragResult = result.rag_results.find((r: any) => r.method === method.method);
                 return `RAG Method: ${method.method}
-            Received query: ${result.query}
-            Query length: ${result.query_length}
-            RagFunctionOutput: ${ragResult ? ragResult.result : 'No result'}
-            ${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 2)}` : ''}
-            Uploaded File Content: ${result.file_content}`;  // Include the first 100 characters of the file content
+                        Received query: ${result.query}
+                        Query length: ${result.query_length}
+                        RagFunctionOutput: ${ragResult ? ragResult.result : 'No result'}
+                        ${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 2)}` : ''}`;
+                        //Uploaded File Content: ${result.file_content}`;  // Include the first 100 characters of the file content
                         });
             setQueryResponses(newResponses);
         } catch (error) {

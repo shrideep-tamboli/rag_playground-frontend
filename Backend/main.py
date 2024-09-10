@@ -39,8 +39,9 @@ def get_data():
 
 @app.post('/upload')
 async def upload_file(file: UploadFile = File(...)):
-    global uploaded_file_content  # Use the global variable
-    uploaded_file_content = await file.read()  # Store the entire file content
+    global uploaded_file_content, uploaded_file_name  # Use the global variable
+    uploaded_file_content = await file.read()
+    uploaded_file_name = file.filename  # Store the entire file content
     file_length = len(uploaded_file_content)
     print(f"Uploaded file size: {file_length} bytes")
     return {"filename": file.filename, "length": file_length}  # Return the uploaded file info
@@ -71,17 +72,20 @@ async def process_query(request: ProcessRequest):
                 "fine_tuning": fine_tuning.dict(exclude_none=True) if fine_tuning else None
             })
             
-            # Call the appropriate RAG method function
-            if method == "Traditional RAG":
-                result = vector_retrieval(method, request.query, uploaded_file_content, fine_tuning) ##pass file as an argument and expect file content from this argument
-            elif method == "Multi-modal RAG":
-                result = multi_modal_rag(method, request.query, fine_tuning)
-            elif method == "Agentic RAG":
-                result = agentic_rag(method, request.query, fine_tuning)
-            elif method == "Graph RAG":
-                result = graph_rag(method, request.query, fine_tuning)
+            # Call the appropriate RAG method function if file is uploaded
+            if uploaded_file_content is None:
+                result = "Upload a file"
             else:
-                result = None
+                if method == "Traditional RAG":
+                    result = vector_retrieval(method, request.query, uploaded_file_name, uploaded_file_content, fine_tuning)  # Pass file as an argument
+                elif method == "Multi-modal RAG":
+                    result = multi_modal_rag(method, request.query, fine_tuning)
+                elif method == "Agentic RAG":
+                    result = agentic_rag(method, request.query, fine_tuning)
+                elif method == "Graph RAG":
+                    result = graph_rag(method, request.query, fine_tuning)
+                else:
+                    result = None
 
             if result:
                 rag_results.append({"method": method, "result": result})
@@ -116,20 +120,35 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY2')
 LANGCHAIN_TRACING_V2 = "true"
 LANGCHAIN_API_KEY = os.getenv("LANGCHAIN_API_KEY")
 
-# RAG Method Functions
-def vector_retrieval(rag_method: str, query: str, file_content: bytes, fine_tuning: Optional[FineTuning] = None):
+# Dependencies & RAG Method Functions
+from langchain_community.document_loaders import PyPDFLoader
+import tempfile
+
+def vector_retrieval(rag_method: str, query: str, uploaded_file_name: str, file_content: bytes, fine_tuning: Optional[FineTuning] = None):
+    
     # Handle the file content based on its type (text or binary)
-    try:
-        # Try decoding the file content as UTF-8 text (for text files)
-        file_content_str = file_content.decode('utf-8')
-    except UnicodeDecodeError:
-        # If the decoding fails, assume it's binary (e.g., PDF) and process it accordingly
-        file_content_str = "[Binary data]"
+    if uploaded_file_name.endswith('.txt'):
+        file_content_str = uploaded_file_content.decode('utf-8')  # Decode as UTF-8 for text files
+    
+    ## If file is pdf
+    elif uploaded_file_name.endswith('.pdf'):
+        # Write the uploaded file content to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
+            temp_pdf.write(uploaded_file_content)
+            temp_pdf_path = temp_pdf.name
+        
+        loader = PyPDFLoader(temp_pdf_path)  # Initialize the PDF loader
+        pages = loader.load_and_split()  # Load and split PDF content
+        file_content_str = " ".join([page.page_content for page in pages])
+    
+    else:
+        file_content_str = "[Unsupported file type]"  # Handle unsupported file types
 
     temp_var = rag_method + " " + query + " " + file_content_str  # Limit to first 100 characters for display
     if fine_tuning:
         fine_tuning_str = ", ".join(f"{k}={v}" for k, v in fine_tuning.dict(exclude_none=True).items())
         temp_var += f" (Fine-tuning: {fine_tuning_str})"
+        
     return "Vector Retrieval: " + temp_var
 
 def multi_modal_rag(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = None):

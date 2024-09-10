@@ -52,7 +52,7 @@ async def process_query(request: ProcessRequest):
     rag_results = []
 
     print("Received request:", request)
-
+##
     # Access the global uploaded file content
     file_content_str = ""
     if uploaded_file_content is not None:
@@ -76,7 +76,7 @@ async def process_query(request: ProcessRequest):
             
             # Call the appropriate RAG method function
             if method == "Traditional RAG":
-                result = vector_retrieval(method, request.query, fine_tuning)
+                result = vector_retrieval(method, request.query, file_content_str, fine_tuning) ##pass file as an argument and expect file content from this argument
             elif method == "Multi-modal RAG":
                 result = multi_modal_rag(method, request.query, fine_tuning)
             elif method == "Agentic RAG":
@@ -102,7 +102,7 @@ async def process_query(request: ProcessRequest):
         "rag_methods": rag_methods,
         "rag_results": rag_results,
         "uploaded_file_size": len(uploaded_file_content) if uploaded_file_content else None,  # Include uploaded file size
-        "file_content": file_content_str[:100]  # Include the first 100 characters of the file content
+        #"file_content": file_content_str[:100]  # Include the first 100 characters of the file content
     }
 
     return response
@@ -120,8 +120,8 @@ LANGCHAIN_TRACING_V2 = "true"
 LANGCHAIN_API_KEY = os.getenv("LANGCHAIN_API_KEY")
 
 # RAG Method Functions
-def vector_retrieval(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = None):
-    temp_var = rag_method + " " + query
+def vector_retrieval(rag_method: str, query: str, file_content: str, fine_tuning: Optional[FineTuning] = None):
+    temp_var = rag_method + " " + query + " " + file_content
     if fine_tuning:
         fine_tuning_str = ", ".join(f"{k}={v}" for k, v in fine_tuning.dict(exclude_none=True).items())
         temp_var += f" (Fine-tuning: {fine_tuning_str})"

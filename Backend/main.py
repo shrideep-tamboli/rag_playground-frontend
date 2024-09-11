@@ -110,39 +110,82 @@ async def process_query(request: ProcessRequest):
 #######################################################################################################
 
 import os
+from dotenv import load_dotenv
+load_dotenv()
 ## Environment varibale initialization
 NEO4J_URI = os.getenv("NEO4J_URI")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 NEO4J_DATABASE = os.getenv("NEO4J_DATABASE")
 groq_api_key = os.getenv("groq_api_key")
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY2')
+OPENAI_API_KEY2 = os.getenv('OPENAI_API_KEY2')
 LANGCHAIN_TRACING_V2 = "true"
 LANGCHAIN_API_KEY = os.getenv("LANGCHAIN_API_KEY")
 
-# Dependencies & RAG Method Functions
+# Dependencies for vector_retrieval and traditional rag
 from langchain_community.document_loaders import PyPDFLoader
 import tempfile
+from langchain_openai import ChatOpenAI
+from langchain_chroma import Chroma
+from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.prompts import PromptTemplate
+
 
 def vector_retrieval(rag_method: str, query: str, uploaded_file_name: str, file_content: bytes, fine_tuning: Optional[FineTuning] = None):
     
+    ## Defining the finetuned variables
+    llm = ChatOpenAI(model="gpt-3.5-turbo")
+    
+    ## Prompt Template
+    prompt_template = """
+    You are a helpful assistant. Given the following context and question, provide a detailed and relevant answer.
+
+    Context: {context}
+
+    Question: {question}
+
+    Answer:
+    """
+
     # Handle the file content based on its type (text or binary)
     if uploaded_file_name.endswith('.txt'):
         file_content_str = uploaded_file_content.decode('utf-8')  # Decode as UTF-8 for text files
     
+    ############ RAG for PDF
     ## If file is pdf
     elif uploaded_file_name.endswith('.pdf'):
         # Write the uploaded file content to a temporary file
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
             temp_pdf.write(file_content)
             temp_pdf_path = temp_pdf.name
-        
+        #file_content_str = " ".join([page.page_content for page in pages])
+
         loader = PyPDFLoader(temp_pdf_path)  # Initialize the PDF loader
         pages = loader.load_and_split()  # Load and split PDF content
-        file_content_str = " ".join([page.page_content for page in pages])
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        splits = text_splitter.split_documents(pages)
+        vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
+        retriever = vectorstore.as_retriever()
+        prompt = PromptTemplate(input_variables=["context", "question"], template=prompt_template)
+
+        def format_docs(pages):
+            return "\n\n".join(i.page_content for i in pages)
+        
+        rag_chain = (
+                    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+                    | prompt
+                    | llm
+                    | StrOutputParser()
+                )
+
+        file_content_str = rag_chain.invoke(query)
     
     else:
         file_content_str = "[Unsupported file type]"  # Handle unsupported file types
+
 
     temp_var = rag_method + " " + query + " " + file_content_str  # Limit to first 100 characters for display
     if fine_tuning:

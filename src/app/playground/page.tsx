@@ -95,7 +95,7 @@ function RAGDropdown({ value, onChange, response, filename, onFineTuningChange }
               className="p-2 border border-gray-300 rounded-md w-full mb-4"
             >
               <option value="" disabled>Select LLM</option>
-              <option value="llama-3.1">Llama 3.1 <i>(default)</i></option>
+              <option value="llama-3.1-70b-versatile">Llama 3.1 <i>(default)</i></option>
               <option value="gpt-3.5-turbo">GPT-3.5 Turbo <i>(api key required)</i></option>
               <option value="gpt-4">GPT-4 <i>(api key required)</i></option>
               <option value="claude-v1">Claude v1 <i>(api key required)</i></option>
@@ -247,11 +247,10 @@ export default function ApiFetch() {
             
             const newResponses = result.rag_methods.map((method: { index: number, method: string }) => {
                 const ragResult = result.rag_results.find((r: any) => r.method === method.method);
-                return `RAG Method: ${method.method}
-                        Received query: ${result.query}
-                        Query length: ${result.query_length}
-                        RagFunctionOutput: ${ragResult ? ragResult.result : 'No result'}
-                        ${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 2)}` : ''}`;
+                return `
+Question: ${result.query}
+Answer: ${ragResult ? ragResult.result : 'No result'}
+${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 2)}` : ''}`;
                         //Uploaded File Content: ${result.file_content}`;  // Include the first 100 characters of the file content
                         });
             setQueryResponses(newResponses);

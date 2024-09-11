@@ -7,4 +7,5 @@ langchain-chroma
 langchain-openai
 langchain_community
 langchain_chroma
+langchain-groq
 python-dotenv

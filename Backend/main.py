@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 app = FastAPI()
@@ -51,6 +51,7 @@ async def process_query(request: ProcessRequest):
     received_data = []
     rag_methods = []
     rag_results = []
+    results = []
 
     print("Received request:", request)
 ##
@@ -87,8 +88,14 @@ async def process_query(request: ProcessRequest):
                 else:
                     result = None
 
-            if result:
-                rag_results.append({"method": method, "result": result})
+            rag_results.append(result)  # Append the result for this method
+
+    # Print the results after processing all methods
+    for index, result in enumerate(rag_results):
+        print(f"RAG_RESULTS[{index}]: {result}")
+            #if results:
+             #   rag_results.append({"method": method, "result": results})
+              #  print("RAG RESULTS: ",rag_results) ####################### Print the RAG RESULTS HERE
 
     if request.query:
         received_data.append(f"Received query: {request.query}")
@@ -121,7 +128,14 @@ groq_api_key = os.getenv("groq_api_key")
 OPENAI_API_KEY2 = os.getenv('OPENAI_API_KEY2')
 LANGCHAIN_TRACING_V2 = "true"
 LANGCHAIN_API_KEY = os.getenv("LANGCHAIN_API_KEY")
+LANGCHAIN_PROJECT="RAG_Playground"
 
+#### INITIALIZE FT METHODS SENT BY USER
+
+
+
+####  FRAMEWORK IS A FINETUNING VARIABLE LANGCHAIN HAS TO BE ENCAPSULATED IN IF FINE_TUNINING["FRAMEWORK":"LANGCHAIN"]
+#  
 # Dependencies for vector_retrieval and traditional rag
 from langchain_community.document_loaders import PyPDFLoader
 import tempfile
@@ -132,22 +146,28 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.prompts import PromptTemplate
-
+from langchain_core.runnables import Runnable
+from langchain_groq import ChatGroq
 
 def vector_retrieval(rag_method: str, query: str, uploaded_file_name: str, file_content: bytes, fine_tuning: Optional[FineTuning] = None):
     
     ## Defining the finetuned variables
-    llm = ChatOpenAI(model="gpt-3.5-turbo")
-    
+    recieved_llm = fine_tuning.llm if fine_tuning and fine_tuning.llm else "llama-3.1-70b-versatile"
+    if recieved_llm == "gpt-3.5-turbo":
+        llm = ChatOpenAI(model=recieved_llm) ##recieved_llm
+    else:
+        llm = ChatGroq(groq_api_key=groq_api_key, model_name="llama-3.1-70b-versatile")
+
     ## Prompt Template
     prompt_template = """
-    You are a helpful assistant. Given the following context and question, provide a detailed and relevant answer.
+    You are a helpful assistant and your names is (your model name with version info). 
+    Given the following context and question, provide a detailed and relevant answer.
 
     Context: {context}
 
     Question: {question}
 
-    Answer:
+    Answer: (Start by telling [Hi, my name is 'your name']. Now continue with the response to user's query)
     """
 
     # Handle the file content based on its type (text or binary)
@@ -185,14 +205,8 @@ def vector_retrieval(rag_method: str, query: str, uploaded_file_name: str, file_
     
     else:
         file_content_str = "[Unsupported file type]"  # Handle unsupported file types
-
-
-    temp_var = rag_method + " " + query + " " + file_content_str  # Limit to first 100 characters for display
-    if fine_tuning:
-        fine_tuning_str = ", ".join(f"{k}={v}" for k, v in fine_tuning.dict(exclude_none=True).items())
-        temp_var += f" (Fine-tuning: {fine_tuning_str})"
         
-    return "Vector Retrieval: " + temp_var
+    return file_content_str
 
 def multi_modal_rag(rag_method: str, query: str, fine_tuning: Optional[FineTuning] = None):
     temp_var = rag_method + " " + query

@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../globals.css';
 import { FaCog, FaUpload } from 'react-icons/fa';
 import Link from 'next/link';
@@ -245,14 +245,17 @@ export default function ApiFetch() {
             const result = await response.json();
             console.log('Server response:', result);
             
-            const newResponses = result.rag_methods.map((method: { index: number, method: string }) => {
-                const ragResult = result.rag_results.find((r: any) => r.method === method.method);
-                return `
+            const newResponses = result.rag_methods.map((method: { index: number, method: string }, index: number) => {
+              const ragResult = result.rag_results[index]; // Access the result by index
+              console.log('RAG Result:', ragResult); // Log the ragResult for debugging
+              return `
 Question: ${result.query}
-Answer: ${ragResult ? ragResult.result : 'No result'}
+
+Answer: ${ragResult ? ragResult : 'No result'}
+
 ${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 2)}` : ''}`;
-                        //Uploaded File Content: ${result.file_content}`;  // Include the first 100 characters of the file content
-                        });
+          });
+          console.log('New Responses:', newResponses); // Log the new responses
             setQueryResponses(newResponses);
         } catch (error) {
             console.error('Error sending data to server:', error);

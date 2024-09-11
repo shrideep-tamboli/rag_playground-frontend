@@ -160,14 +160,13 @@ def vector_retrieval(rag_method: str, query: str, uploaded_file_name: str, file_
 
     ## Prompt Template
     prompt_template = """
-    You are a helpful assistant and your names is (your model name with version info). 
-    Given the following context and question, provide a detailed and relevant answer.
+    You are a helpful assistant. Given the following context and question, provide a detailed and relevant answer.
 
     Context: {context}
 
     Question: {question}
 
-    Answer: (Start by telling [Hi, my name is 'your name']. Now continue with the response to user's query)
+    Answer:
     """
 
     # Handle the file content based on its type (text or binary)

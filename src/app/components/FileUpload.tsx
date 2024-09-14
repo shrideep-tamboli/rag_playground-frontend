@@ -1,5 +1,4 @@
 "use client";
-import { uploadToS3 } from "@/app/lib/s3";
 
 import { Inbox, Loader2 } from "lucide-react";
 import React from "react";

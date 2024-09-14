@@ -245,7 +245,7 @@ export default function ApiFetch() {
             const result = await response.json();
             console.log('Server response:', result);
             
-            const newResponses = result.rag_methods.map((method: { index: number, method: string }, index: number) => {
+            const newResponses = result.rag_methods.map((method: { index: number, method: string, fine_tuning?: any }, index: number) => {
               const ragResult = result.rag_results[index]; // Access the result by index
               console.log('RAG Result:', ragResult); // Log the ragResult for debugging
               return `

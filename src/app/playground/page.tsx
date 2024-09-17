@@ -178,7 +178,7 @@ export default function ApiFetch() {
   const [fineTuningSettings, setFineTuningSettings] = useState<{ [key: number]: Partial<FineTuningSettings> }>({});
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/') // Adjust the port based on your backend
+    fetch('https://rag-playground-frontend.vercel.app/') // Adjust the port based on your backend
       .then(response => response.json())
       .then(data => setData(data));
   }, []);
@@ -230,7 +230,7 @@ export default function ApiFetch() {
 
             console.log('Sending payload:', payload); // Log the payload for debugging
 
-            const response = await fetch('http://127.0.0.1:8000/process', {
+            const response = await fetch('https://rag-playground-frontend.vercel.app/process', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -272,7 +272,7 @@ ${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 
       formData.append('file', file); //append file to formData
       
       try {
-        const response = await fetch('http://127.0.0.1:8000/upload', { //send POST request to backend endpoint
+        const response = await fetch('https://rag-playground-frontend.vercel.app/upload', { //send POST request to backend endpoint
           method: 'POST',
           body: formData,
         });

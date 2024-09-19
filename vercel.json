@@ -4,19 +4,5 @@
         "src": "next.config.js",
         "use": "@vercel/next"
       }
-    ],
-    "rewrites": [
-      {
-        "source": "/api/upload",
-        "destination": "http://64.227.185.75:8000/upload"
-      },
-      {
-        "source": "/api/process",
-        "destination": "http://64.227.185.75:8000/process"
-      },
-      {
-        "source": "/api",
-        "destination": "http://64.227.185.75:8000/"
-      }
     ]
-}
+  }  

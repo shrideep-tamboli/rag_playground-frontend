@@ -236,7 +236,6 @@ export default function ApiFetch() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(payload),
-                mode: 'cors',
             });
             
             if (!response.ok) {
@@ -276,7 +275,6 @@ ${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 
         const response = await fetch('http://64.227.185.75:8000/upload', { //send POST request to backend endpoint
           method: 'POST',
           body: formData,
-          mode: 'cors',
         });
         console.log('Received response from backend');
         const result = await response.json(); //parse response from backend as JSON

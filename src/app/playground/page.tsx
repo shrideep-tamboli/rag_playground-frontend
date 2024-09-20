@@ -176,9 +176,10 @@ export default function ApiFetch() {
   const [showThreeDropdowns, setShowThreeDropdowns] = useState(false);
   const [queryResponses, setQueryResponses] = useState<(string | null)[]>([null, null, null]);
   const [fineTuningSettings, setFineTuningSettings] = useState<{ [key: number]: Partial<FineTuningSettings> }>({});
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
-    fetch('https://64-227-185-75.nip.io') // Adjust the port based on your backend
+    fetch(`${apiUrl}`) // Adjust the port based on your backend
       .then(response => response.json())
       .then(data => setData(data));
   }, []);
@@ -230,7 +231,7 @@ export default function ApiFetch() {
 
             console.log('Sending payload:', payload); // Log the payload for debugging
 
-            const response = await fetch('https://64-227-185-75.nip.io/process', {
+            const response = await fetch(`${apiUrl}/process`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -272,7 +273,7 @@ ${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 
       formData.append('file', file); //append file to formData
       
       try {
-        const response = await fetch('https://64-227-185-75.nip.io/upload', { //send POST request to backend endpoint
+        const response = await fetch(`${apiUrl}/upload`, { //send POST request to backend endpoint
           method: 'POST',
           body: formData,
         });

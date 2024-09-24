@@ -15,7 +15,7 @@ export default function Header() {
   return (
     <header className="flex h-20 bg-black text-white">
       <div className="w-1/5 flex items-center justify-center">
-        <h1 className="text-4xl font-bold">rag.io</h1>
+        <h1 className="text-4xl font-bold">RAGIt</h1>
       </div>
       <div className="w-4/5 flex items-center justify-end pr-8">
         <div className="flex">

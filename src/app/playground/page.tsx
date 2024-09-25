@@ -95,10 +95,14 @@ function RAGDropdown({ value, onChange, response, filename, onFineTuningChange }
               className="p-2 border border-gray-300 rounded-md w-full mb-4"
             >
               <option value="" disabled>Select LLM</option>
-              <option value="llama-3.1-70b-versatile">Llama 3.1 <i>(default)</i></option>
-              <option value="gpt-3.5-turbo">GPT-3.5 Turbo <i>(api key required)</i></option>
-              <option value="gpt-4">GPT-4 <i>(api key required)</i></option>
-              <option value="claude-v1">Claude v1 <i>(api key required)</i></option>
+              <option value="llama-3.1-70b-versatile">Llama-3.1-70b-Versatile <i>(default)</i></option>
+              <option value="llama-3.1-8b-instant">Llama-3.1-8b-Instant <i>(open source)</i></option>
+              <option value="mixtral-8x7b-32768">Misxtral-8x-7b <i>(open source)</i></option>
+              <option value="gemma2-9b-it">Gemma2-9b-it <i>(open source)</i></option>
+              <option value="gemma-7b-it">Gemma-7b-it <i>(open source)</i></option>
+              <option value="gpt-3.5-turbo">GPT-3.5-Turbo <i>(api key required)</i></option>
+              <option value="gpt-4o-mini">GPT-4o-mini <i>(api key required)</i></option>
+              <option value="gpt-4o">GPT-4o <i>(api key required)</i></option>
             </select>
             <select
               value={selectedFramework}
@@ -176,6 +180,7 @@ export default function ApiFetch() {
   const [showThreeDropdowns, setShowThreeDropdowns] = useState(false);
   const [queryResponses, setQueryResponses] = useState<(string | null)[]>([null, null, null]);
   const [fineTuningSettings, setFineTuningSettings] = useState<{ [key: number]: Partial<FineTuningSettings> }>({});
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
@@ -214,6 +219,7 @@ export default function ApiFetch() {
             alert('Please select at least one RAG method');
             return;
         }
+        setIsLoading(true); // Set loading to true
         try {
             const payload: any = {
                 query: inputText,
@@ -261,6 +267,8 @@ ${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 
         } catch (error) {
             console.error('Error sending data to server:', error);
             setQueryResponses(['Error processing query', 'Error processing query', 'Error processing query']);
+        } finally {
+            setIsLoading(false); // Set loading to false after processing
         }
         setInputText(''); // Clear the input after submission
     }
@@ -418,6 +426,14 @@ ${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 
                 <span className="text-2xl">+</span>
               </button>
             )}
+          </div>
+        )}
+        {isLoading && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="p-6 rounded-lg w-50 flex flex-col items-center" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}>
+              <div className="loader"></div> {/* Add your spinner here */}
+              <p className="mt-2">Loading...</p>
+            </div>
           </div>
         )}
       </main>

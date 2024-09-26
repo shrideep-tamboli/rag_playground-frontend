@@ -95,6 +95,9 @@ function RAGDropdown({ value, onChange, response, filename, onFineTuningChange }
               className="p-2 border border-gray-300 rounded-md w-full mb-4"
             >
               <option value="" disabled>Select LLM</option>
+              <option value="llama-3.2-90b-text-preview">Llama-3.2-90b (Preview) <i>(open source)</i></option>
+              <option value="llama-3.2-11b-text-preview">Llama-3.2-11b (Preview) <i>(open source)</i></option>
+              <option value="llama-3.2-1b-preview">Llama-3.2-1b (Preview) <i>(open source)</i></option>
               <option value="llama-3.1-70b-versatile">Llama-3.1-70b-Versatile <i>(default)</i></option>
               <option value="llama-3.1-8b-instant">Llama-3.1-8b-Instant <i>(open source)</i></option>
               <option value="mixtral-8x7b-32768">Misxtral-8x-7b <i>(open source)</i></option>
@@ -258,9 +261,10 @@ export default function ApiFetch() {
               return `
 Question: ${result.query}
 
-Answer: ${ragResult ? ragResult : 'No result'}
+${method.fine_tuning ? `${JSON.stringify(method.fine_tuning, null)}` : ''}
 
-${method.fine_tuning ? `Fine-tuning: ${JSON.stringify(method.fine_tuning, null, 2)}` : ''}`;
+Answer: ${ragResult ? ragResult : 'No result'}`
+;
           });
           console.log('New Responses:', newResponses); // Log the new responses
             setQueryResponses(newResponses);

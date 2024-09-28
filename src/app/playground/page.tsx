@@ -227,7 +227,7 @@ export default function ApiFetch() {
             const payload: any = {
                 query: inputText,
             };
-            
+
             [selectedOption, selectedOption2, selectedOption3].forEach((option, index) => {
                 if (option) {
                     payload[`ragMethod${index + 1}`] = option;
@@ -247,27 +247,31 @@ export default function ApiFetch() {
                 },
                 body: JSON.stringify(payload),
             });
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const result = await response.json();
             console.log('Server response:', result);
-            
+
             const newResponses = result.rag_methods.map((method: { index: number, method: string, fine_tuning?: any }, index: number) => {
-              const ragResult = result.rag_results[index]; // Access the result by index
-              console.log('RAG Result:', ragResult); // Log the ragResult for debugging
-              return `
+                const ragResult = result.rag_results[index]; // Access the result by index
+                console.log('RAG Result:', ragResult); // Log the ragResult for debugging
+                return `
 Question: ${result.query}
-
 ${method.fine_tuning ? `${JSON.stringify(method.fine_tuning, null)}` : ''}
+Answer: ${ragResult ? ragResult : 'No result'}`;
+            });
 
-Answer: ${ragResult ? ragResult : 'No result'}`
-;
-          });
-          console.log('New Responses:', newResponses); // Log the new responses
-            setQueryResponses(newResponses);
+            console.log('New Responses:', newResponses); // Log the new responses
+
+            // Append new responses to the existing ones
+            setQueryResponses(prevResponses => 
+                prevResponses.map((response, index) => 
+                    response ? response + '\n\n' + newResponses[index] : newResponses[index]
+                )
+            );
         } catch (error) {
             console.error('Error sending data to server:', error);
             setQueryResponses(['Error processing query', 'Error processing query', 'Error processing query']);
@@ -277,6 +281,7 @@ Answer: ${ragResult ? ragResult : 'No result'}`
         setInputText(''); // Clear the input after submission
     }
 };
+
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
